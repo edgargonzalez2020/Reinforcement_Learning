@@ -1,0 +1,319 @@
+<html>
+<head>
+  <title>CSE 4309 - Assignment 7 </title>
+</head>
+
+<body>
+<h1><a href="../../index.html">CSE 4309</a> -
+<a href="../index.html">Assignments</a> - Assignment 7
+
+
+<h3><a href="..">List of assignment due dates.</a></h3>
+
+The assignment should be submitted via <a href="https://uta.instructure.com/">Canvas</a>. Submit a file called assignment7.zip, containing the following two files:
+<ul>
+
+<li> answers.pdf, for your answers to the written tasks, and for the output that the programming task asks you to include. Only PDF files will be accepted. All text should be typed, and if any figures are present they should be computer-generated. Scans of handwriten answers will NOT be accepted.
+
+
+<li> value_iteration.m and q_learning.m, or value_iteration.py and q_learning.py, containing your Matlab or Python code for the programming tasks. In addition, you must include in your zip file any other source files (with auxiliary code) that are needed to run your solution. Matlab code needs to run on version 2017a, and Python code needs to run on Anaconda version 3.6 (Python version 3.6.4, numpy version 1.13.3), unless permission is obtained via e-mail from the instructor or the teaching assistant.
+
+
+</ul>
+
+These naming conventions are mandatory, non-adherence to these specifications can incur a penalty of up to 20 points.
+
+<p>
+
+
+<p>
+
+Your name and UTA ID number should appear on the top line of both documents.
+<hr>
+
+<h3> Task 1 (30 points, programming) </h3> 
+ 
+In this task you will implement the value iteration algorithm.
+
+<p>
+
+
+<h4> Arguments </h4>
+
+Your function will be invoked as follows:
+<pre>
+value_iteration(&lt;environment_file>, &lt;non_terminal_reward>, &lt;gamma>, &lt;K>) 
+</pre>
+
+If you use Python, just convert the Matlab function arguments shown above to command-line arguments. The arguments provide to the program the following information:
+
+
+<ul>
+
+<LI> The first argument, &lt;environment_file>, is the path name of a file that describes the environment where the agent moves (see details below). The path name can specify any file stored on the local computer.
+
+
+<LI> The second argument, &lt;non_terminal_reward>, specifies the reward of any state that is non-terminal.
+
+<LI> The third argument, &lt;gamma>, specifies the value of &gamma; that you should use in the utility formulas.
+
+<LI> The fourth argument, &lt;K>, specifies the number of times that the main loop of the algorithm should be iterated. The initialization stage, where <tt>U[s]</tt> is set to 0 for every state s, does not count as an iteration. After the first iteration, if you implement the algorithm correctly, it should be the case that <tt>U[s]=R[s]</tt>.
+
+</ul>
+
+<p>
+<table style="border: 1px solid black">
+<tr>
+<td>
+<center>
+<img src="environment1.png" width=194 height=162><br>
+</center>
+Figure 1: The environment described in file <a href="environment1.txt">environment1.txt</a>.
+</td>
+</tr>
+</table>
+<p>
+
+The environment file will follow the same format as files <a href="environment1.txt">environment1.txt</a> and <a href="environment2.txt">environment2.txt</a>. For example, file <a href="environment1.txt">environment1.txt</a> describes the world shown in Figure 1, and it has the following contents:
+
+<pre>
+1.0,X
+.,-1.0
+</pre>
+
+
+<p>
+<table style="border: 1px solid black">
+<tr>
+<td>
+<center>
+<img src="environment2.png" width=349 height=217><br>
+Figure 2: The environment described in file <a href="environment2.txt">environment2.txt</a>.
+</td>
+</tr>
+</table>
+<p>
+
+Similarly, file <a href="environment2.txt">environment2.txt</a> describes the world shown in Figure 2, and it has the following contents:
+
+<pre>
+.,.,.,1.0
+.,X,.,-1.0
+.,.,.,.
+</pre>
+
+<p>
+
+As you see from the two examples, the environment files are CSV (comma-separated values) files, where:
+
+<ul>
+
+<li> Character '.' represents a non-terminal state.
+
+<li> Character 'X' represents a blocked state, that cannot be reached from any other state. You can assume that blocked states have utlity value 0.
+
+<li> Numbers represent the rewards of TERMINAL states. So, if the file contains a number at some position, it means that that position is a terminal state, and the number is the reward for reaching that state. These rewards are real numbers, they can have any value.
+
+</ul>
+
+
+<h4>Implementation Guidelines</h4>
+
+<ul>
+
+<li> For the state transition model (i.e., the probability of the outcome of each action at each state), use the model described in pages 9-10 of the <a href="../../lectures/18_mdp.pdf">MDP slides</a>. 
+
+<li> For terminal states, your model should not allow any action to be performed once you reach those states. For those states, you can just hardcode that their utility is equal to their reward.
+
+<li> For blocked states, your code should capture the fact (by implementing the appropriate transition model) that they cannot be reached from any other state. You should hardcode the utility values of blocked states to be 0.
+
+</ul>
+
+<p>
+
+
+<h4> Output </h4>
+
+At the end of your program, you should print out the utility values for all states. 
+
+<p>
+
+The output should follow this format: 
+
+<pre>
+%6.3f,%6.3f,...
+...
+</pre>
+
+In other words, each row in your output corresponds to a row in the environment, and you use the %6.3f format specifier (or equivalents, depending on the programming language) for each utility value. For blocked states, just print a utility of 0.
+
+<p>
+
+Do NOT print out this output after each iteration. You should only print out this output after the final iteration. 
+
+
+<h4> Output for answers.pdf </h4>
+
+
+In your answers.pdf document, you need to provide the complete output for the following invocations of your program:
+
+<pre>
+value_iteration('environment2.txt', -0.04, 1, 20)
+value_iteration('environment2.txt', -0.04, 0.9, 20)
+</pre>
+
+<p>
+
+
+<hr>
+
+<h3> Task 2 (Programming, 40 points) </h3>
+
+In this task, you will implement the <tt>AgentModel_Q_Learning</tt> function from the <a href="../../lectures/19_rl.pdf">Reinforcement Learning slides</a>. Implement a function that can be called as:
+
+<pre>
+q_learning(&lt;environment_file>, &lt;non_terminal_reward>, &lt;gamma>, &lt;number_of_moves>, &lt;N<sub>e</sub>>)
+</pre>
+
+If you use Python, just convert the Matlab function arguments shown above to command-line arguments. The command line arguments should be:
+
+<ul>
+
+<LI> The first argument, &lt;environment_file>, is the path name of a file that describes the environment where the agent moves, and follows the same format as in the <tt>value_iteration</tt>program.
+
+<LI> The second argument, &lt;non_terminal_reward>, specifies the reward of any state that is non-terminal, as in the <tt>value_iteration</tt> program.
+
+<LI> The third argument, &lt;gamma>, specifies the value of &gamma; that you should use in the utility formulas, as in the <tt>value_iteration</tt> program.
+
+<LI> The fourth argument, &lt;number_of_moves>, specifies how many moves you should process with the AgentModel_Q_Learning function. So, instead of having the main loop run forever, you terminate it after the number of iterations specified by &lt;number_of_moves>. 
+
+<li> The fifth argument, &lt;N<sub>e</sub>>, is used as discussed in the implementation guidelines, to define the f function.
+
+</ul>
+
+<p>
+
+<h4>Implementation Guidelines</h4>
+
+<li> The outcome of each move should be generated randomly, following the state transition model described in pages 9-10 of the <a href="../../lectures/18_mdp.pdf">MDP slides</a>.
+
+<p>
+
+<li> As in the previous task, for terminal states your model should not allow any action to be performed once you reach those states. Note that the AgentModel_Q_Learning pseudocode on the slides does handle this case appropriately, and your implementation should handle this case the same way: terminate the current mission and start a new mission. When starting a new mission, the start state should be chosen randomly (with equal probability) from all possible states, except for terminal states and blocked states.
+
+<p>
+
+<li> For the &eta; function, use &eta;(N) = 1/N
+
+<p>
+
+<li> For the f function, use:
+
+<ul>
+
+<li> f(u,n) = 1 if n < N<sub>e</sub>, where N<sub>e</sub> is the fifth argument to the <tt>q_learning</tt> function.
+
+<li> f(u,n) = u otherwise.
+
+</ul>
+
+<p>
+
+<li> Your solution needs to somehow simulate the <tt>SenseStateAndReward</tt> function, which should be pretty easy. Your solution should also simulate somehow the <tt>ExecuteAction</tt> function, which should implement the state transition model described in pages 9-10 of the <a href="../../lectures/18_mdp.pdf">MDP slides</a>, with the probabilities that are used in those slides. As described in those slides, bumping to a wall leads to not moving.
+
+<p>
+
+<li> Note that some computations will require values Q[s,a] that have not been instantiated yet. Uninstantiated values in the Q table should be treated as if they are equal to 0.
+
+<p>
+
+<h4> Output </h4>
+
+At the end of your program, you should print out the utility values for all states. 
+
+<p>
+
+The output should follow this format: 
+
+<pre>
+%6.3f,%6.3f,...
+...
+</pre>
+
+In other words, each row in your output corresponds to a row in the environment, and you use the %6.3f format specifier (or equivalents, depending on the programming language) for each utility value. For blocked states, just print a utility of 0.
+
+<p>
+
+Do NOT print out this output after each iteration. You should only print out this output after the final iteration. 
+
+
+<h4> Output for answers.pdf </h4>
+
+
+In your answers.pdf document, you need to provide the complete output for the following invocations of your program:
+
+<pre>
+q_learning('environment2.txt', -0.04, 1, 1000, 20)
+q_learning('environment2.txt', -0.04, 0.9, 1000, 20)
+</pre>
+
+<p>
+
+<hr>
+
+<h3>Task 3 (10 points)</h3>
+
+Suppose that you want to implement a Q-Learning algorithm for learning how to play chess. 
+
+<ul>
+
+<li> What value would you assign for the reward of the non-terminal states? Why?
+
+<li> What value would you use for &gamma; in the <tt>Q_Learning_Update</tt> function? Why?
+
+</ul>
+ 
+Your choices should be the best choices that you can make so that your algorithm plays chess as well as possible.
+
+
+<p>
+
+<hr>
+
+<h3>Task 4 (20 points)</h3>
+
+
+<p>
+<table style="border: 1px solid black">
+<tr>
+<td>
+<center>
+<img src="environment4.png" width=250><br>
+Figure 3: The environment to be considered in this task.
+</td>
+</tr>
+</table>
+<p>
+
+Consider the environment shown on Figure 3. States (1,2) and (3,2) are terminal, with utilities -1 and +1. States (2,1) and (2,3) are blocked. Suppose that actions and state transition models are as described in pages 9-10 of the <a href="../../lectures/18_mdp.pdf">MDP slides</a>. 
+
+<p>
+
+<strong>Part a:</strong> Suppose that the reward for non-terminal states is -0.04, and that &gamma;=0.9. What is the utility for state (2,2)? Show how you compute this utility.
+
+<p>
+
+<strong>Part b:</strong> Suppose that &gamma;=0.9, and that the reward for non-terminal states is an unspecified real number r (that can be positive or negative). For state (2,2), give the precise range of values for r for which the "up" action is not optimal. Show how you compute that range.
+
+<p>
+
+
+
+<hr>
+
+<a href="../../index.html">CSE 4309</a> -
+<a href="../index.html">Assignments</a> - Assignment 7
+
+
+</body>
+</html>
